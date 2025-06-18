@@ -29,10 +29,13 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 # SECURITY
 # ------------------------------------------------------------------------------
 SECRET_KEY = env('SECRET_KEY')
-DEBUG = True
+ROBOFLOW_API_KEY = env('ROBOFLOW_API_KEY') #ADDED LINE BY ME
+#DEBUG = True
+DEBUG = env.bool('DEBUG', default=False)
 # ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['*'])
-ALLOWED_HOSTS = ['*']  # not safe for production
+#ALLOWED_HOSTS = ['*']  # not safe for production
 
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[])
 
 # Application definition
 # ------------------------------------------------------------------------------
@@ -91,8 +94,12 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database
 # ------------------------------------------------------------------------------
+'''
 DATABASES = {
     'default': env.db(),  # parses DATABASE_URL
+}'''
+DATABASES = {
+    'default': env.db(default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}")
 }
 
 AUTH_USER_MODEL = 'api.User'
@@ -202,6 +209,9 @@ LOGGING = {
 
 # CORS settings
 # ------------------------------------------------------------------------------
-CORS_ALLOW_ALL_ORIGINS = True
+#CORS_ALLOW_ALL_ORIGINS = True
+
+CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[])
+CORS_ALLOW_ALL_ORIGINS = False
 # or, to lock down:
 # CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[])

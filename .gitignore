@@ -1,5 +1,8 @@
-venv/
+myenv/
+media/
 __pycache__/
 *.py[cod]
-*.env
+.env
 db.sqlite3
+temp_crop.jpg
+temp_infer.jpg

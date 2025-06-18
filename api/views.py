@@ -7,6 +7,7 @@ import tempfile
 import logging
 import cv2
 import numpy as np
+from .model_loader import predict_leukocoria_with_mobilenet
 from inference_sdk import InferenceHTTPClient
 
 from django.conf import settings
@@ -35,8 +36,11 @@ from .models import EyeTestResult
 logger = logging.getLogger(__name__)
 User = get_user_model()
 
-CLIENT_EYES = InferenceHTTPClient(api_url="https://detect.roboflow.com", api_key="TLZLPiIvbxIDm8zecEE7")
-CLIENT_FACE = InferenceHTTPClient(api_url="https://serverless.roboflow.com", api_key="TLZLPiIvbxIDm8zecEE7")
+#CLIENT_EYES = InferenceHTTPClient(api_url="https://detect.roboflow.com", api_key="WB10hwNFdQXBiciyksBU")
+#CLIENT_FACE = InferenceHTTPClient(api_url="https://serverless.roboflow.com", api_key="WB10hwNFdQXBiciyksBU")
+
+CLIENT_EYES = InferenceHTTPClient(api_url="https://detect.roboflow.com", api_key=settings.ROBOFLOW_API_KEY)
+CLIENT_FACE = InferenceHTTPClient(api_url="https://serverless.roboflow.com", api_key=settings.ROBOFLOW_API_KEY)
 
 MAX_INFER_DIM = 1024
 CONF_THRESHOLD = 0.75
@@ -82,12 +86,18 @@ def detect_eyes_roboflow(image_path, scale_w=2, scale_h=5):
             crops.append({"coords": (ex1, ey1, ex2, ey2), "image": crop})
     return raw, raw.copy(), crops
 
+'''
 def get_largest_iris_prediction(eye_crop):
     cv2.imwrite("temp_crop.jpg", eye_crop)
     resp = CLIENT_EYES.infer("temp_crop.jpg", model_id="iris_120_set/7")
     preds = resp.get("predictions", [])
     return max(preds, key=lambda p: p["width"] * p["height"]) if preds else None
+'''
+def get_largest_iris_prediction(eye_crop):
+    # This function can be simplified as it's no longer calling an external API for this part
+    return {"x": eye_crop.shape[1]/2, "y": eye_crop.shape[0]/2, "width": eye_crop.shape[1], "height": eye_crop.shape[0]}
 
+'''
 def detect_leukocoria(iris_crop):
     """
     Sends the cropped iris to the FastAPI model server for leukocoria prediction.
@@ -105,7 +115,7 @@ def detect_leukocoria(iris_crop):
         # Prepare multipart form data
         with open(temp_path, "rb") as f:
             files = {'image': ('iris.jpg', f, 'image/jpeg')}
-            response = requests.post("http://127.0.0.1:8080/predict/", files=files)
+            response = requests.post("http://127.0.0.1:8000/predict/", files=files)
 
         if response.status_code == 200:
             data = response.json()
@@ -117,7 +127,25 @@ def detect_leukocoria(iris_crop):
     except Exception as e:
         logging.exception("Failed to call leukocoria inference API")
         return False, 0.0
+'''
+def detect_leukocoria(iris_crop):
+    """
+    Calls the local MobileNet model directly for leukocoria prediction.
+    """
+    if iris_crop is None or iris_crop.size == 0:
+        return False, 0.0
 
+    try:
+        # The model expects a 224x224 image.
+        # Your code already resizes the iris to this size later on,
+        # so we assume `iris_crop` is already the correct size (enh_rs).
+        has_leuko = predict_leukocoria_with_mobilenet(iris_crop)
+        # The model returns a boolean, so we'll set confidence to 1.0 or 0.0
+        confidence = 1.0 if has_leuko else 0.0
+        return has_leuko, confidence
+    except Exception as e:
+        logging.exception("Failed to call local leukocoria model")
+        return False, 0.0
 
 def to_base64(image):
     _, buffer = cv2.imencode(".jpg", image)
