@@ -98,8 +98,13 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': env.db(),  # parses DATABASE_URL
 }'''
+DATA_DIR = Path('/var/data')
+
 DATABASES = {
-    'default': env.db(default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}")
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': DATA_DIR / 'db.sqlite3',
+    }
 }
 
 AUTH_USER_MODEL = 'api.User'
@@ -141,7 +146,8 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Media files (if you need uploads)
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+#MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = DATA_DIR / 'media'
 
 
 # Default primary key field type
