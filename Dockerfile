@@ -8,8 +8,9 @@ ENV PYTHONUNBUFFERED 1
 # Set the working directory in the container
 WORKDIR /app
 
-# Install system dependencies required by some Python packages like OpenCV
+# Install system dependencies, including wget to download the model
 RUN apt-get update && apt-get install -y \
+    wget \
     libgl1-mesa-glx \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
@@ -19,6 +20,13 @@ COPY requirements.txt .
 
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Create the directory for the model
+RUN mkdir -p /app/api/models
+
+# Use wget to download the model from your GitHub Release into the correct directory
+# !!! REPLACE THE URL WITH THE ONE YOU COPIED !!!
+RUN wget -O /app/api/models/MobileNetV1_best.keras "https://github.com/skibi11/leukolook-backend/releases/download/v1.0/MobileNetV1_best.keras"
 
 # Copy the rest of your application's code into the container
 COPY . .
