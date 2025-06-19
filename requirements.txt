@@ -1,3 +1,4 @@
+gunicorn
 absl-py==2.2.2
 aiohappyeyeballs==2.6.1
 aiohttp==3.10.11
