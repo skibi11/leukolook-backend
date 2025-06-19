@@ -20,14 +20,14 @@ COPY requirements.txt .
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of your application's code into the container at /app
+# Copy the rest of your application's code into the container
 COPY . .
 
-# Run Django migrations
-RUN python manage.py migrate
+# Make the entrypoint script executable
+RUN chmod +x /app/entrypoint.sh
 
-# Expose port 8080 for Google Cloud Run
+# Expose port 8080 for Render
 EXPOSE 8080
 
-# Define the command to run your app using gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "2", "config.wsgi:application"]
+# Set the entrypoint script as the container's main command
+CMD ["/app/entrypoint.sh"]
