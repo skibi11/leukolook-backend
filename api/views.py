@@ -57,7 +57,7 @@ class EyeDetectionView(APIView):
                 return Response({"warnings": ["Could not decode image."]}, status=400)
 
             # --- Step 2: Face Detection (using in-memory image) ---
-            face_resp = CLIENT_FACE.infer(original_image, model_id="face-detection-short-range/1")
+            face_resp = CLIENT_FACE.infer(original_image, model_id="face-detector-v4liw/2")
             if not face_resp.get("predictions"):
                 return Response({"warnings": ["No face detected."]}, status=200)
 
