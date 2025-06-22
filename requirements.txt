@@ -4,3 +4,4 @@ djangorestframework
 gunicorn
 python-environ
 requests
+pymysql
