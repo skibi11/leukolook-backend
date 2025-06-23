@@ -18,7 +18,7 @@ class EyeDetectionView(APIView):
             return Response({'error': 'No image provided.'}, status=status.HTTP_400_BAD_REQUEST)
 
         # 2. Prepare the request for your Gradio API on Hugging Face
-        api_url = "https://skibi11-leukolook-api.hf.space/api/predict/"
+        api_url = "https://skibi11-leukolook-api.hf.space/run/predict"
         
         # --- START OF CHANGES ---
 
