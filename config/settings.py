@@ -20,11 +20,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Initialize environment reader
 env = environ.Env(
-    # set casting, default value
-    DEBUG=(bool, True)
+    # Default DEBUG to False for safety. It will be overridden by your .env file locally.
+    DEBUG=(bool, False)
 )
-# read .env file at project root
-environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+
+# This line now only runs if DEBUG is True.
+# On Render, DEBUG is False, so this is skipped, and the warning is removed.
+if env.bool('DEBUG'):
+    environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 # SECURITY
 # ------------------------------------------------------------------------------
@@ -94,10 +97,6 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database
 # ------------------------------------------------------------------------------
-'''
-DATABASES = {
-    'default': env.db(),  # parses DATABASE_URL
-}'''
 DATA_DIR = Path('/var/data')
 
 DATABASES = {
