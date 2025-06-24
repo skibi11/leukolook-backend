@@ -18,11 +18,11 @@ class EyeDetectionView(APIView):
             return Response({'error': 'No image provided'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            # Read the image data and encode it
+            # Read the image data and encode it to Base64
             image_data = image_file.read()
             image_base64 = base64.b64encode(image_data).decode("utf-8")
 
-            # Create the simple JSON payload
+            # Create the JSON payload that the HF Space expects
             payload = {"image_base64": image_base64}
 
             # Send the JSON payload to the Hugging Face Space
